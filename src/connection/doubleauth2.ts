@@ -1,20 +1,10 @@
+import { ED_VERSION } from "../constants.js";
+import { setDefaultHeaders } from "../utils/headersAppending.js";
+
 export async function doubleauth2(token: string, token2fa: string, response: string) {
-  const myHeaders = new Headers();
+  let myHeaders = new Headers();
+  myHeaders = setDefaultHeaders(myHeaders);
   myHeaders.append("2fa-token", token2fa);
-  myHeaders.append("accept", "application/json, text/plain, */*");
-  myHeaders.append("accept-language", "fr-FR,fr;q=0.9");
-  myHeaders.append("content-type", "application/x-www-form-urlencoded");
-  myHeaders.append("origin", "https://www.ecoledirecte.com");
-  myHeaders.append("priority", "u=1, i");
-  myHeaders.append("referer", "https://www.ecoledirecte.com/");
-  myHeaders.append("sec-ch-ua", '"Chromium";v="142", "Brave";v="142", "Not_A Brand";v="99"');
-  myHeaders.append("sec-ch-ua-mobile", "?0");
-  myHeaders.append("sec-ch-ua-platform", '"macOS"');
-  myHeaders.append("sec-fetch-dest", "empty");
-  myHeaders.append("sec-fetch-mode", "cors");
-  myHeaders.append("sec-fetch-site", "same-site");
-  myHeaders.append("sec-gpc", "1");
-  myHeaders.append("user-agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36");
   myHeaders.append("x-token", token);
 
   const urlencoded = new URLSearchParams();
@@ -32,6 +22,6 @@ export async function doubleauth2(token: string, token2fa: string, response: str
     redirect: "follow",
   };
 
-  let res = await fetch("https://api.ecoledirecte.com/v3/connexion/doubleauth.awp?verbe=post&v=4.90.1", requestOptions);
+  let res = await fetch(`https://api.ecoledirecte.com/v3/connexion/doubleauth.awp?verbe=post&v=${ED_VERSION}`, requestOptions);
   return res;
 }

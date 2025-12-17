@@ -1,28 +1,18 @@
+import type { Authentifier } from "../../Authentifier.js";
+import { ED_VERSION } from "../../constants.js";
 import type { NotesOptions, Notes } from "../../types.js";
+import { setDefaultHeaders } from "../../utils/headersAppending.js";
 import { noteToFloat } from "../../utils/notes.js";
 import type { RootNote } from "./RootNote.js";
 
-export async function fetchNotes(xToken: string, token2fa: string, options: NotesOptions): Promise<Notes> {
-  const myHeaders = new Headers();
-  myHeaders.append("2fa-token", token2fa);
-  myHeaders.append("accept", "application/json, text/plain, */*");
-  myHeaders.append("accept-language", "fr-FR,fr;q=0.9");
-  myHeaders.append("content-type", "application/x-www-form-urlencoded");
-  myHeaders.append("origin", "https://www.ecoledirecte.com");
-  myHeaders.append("priority", "u=1, i");
-  myHeaders.append("referer", "https://www.ecoledirecte.com/");
-  myHeaders.append("sec-ch-ua", '"Chromium";v="142", "Brave";v="142", "Not_A Brand";v="99"');
-  myHeaders.append("sec-ch-ua-mobile", "?0");
-  myHeaders.append("sec-ch-ua-platform", '"macOS"');
-  myHeaders.append("sec-fetch-dest", "empty");
-  myHeaders.append("sec-fetch-mode", "cors");
-  myHeaders.append("sec-fetch-site", "same-site");
-  myHeaders.append("sec-gpc", "1");
-  myHeaders.append("user-agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36");
-  myHeaders.append("x-token", xToken);
+export async function fetchNotes(auth: Authentifier, options: NotesOptions): Promise<Notes> {
+  let myHeaders = new Headers();
+  myHeaders = setDefaultHeaders(myHeaders);
+  myHeaders.append("2fa-token", auth.token2fa);
+  myHeaders.append("x-token", auth.xToken);
 
   const urlencoded = new URLSearchParams();
-  urlencoded.append("data", '{\n    "anneeScolaire": ""\n}');
+  urlencoded.append("data", '{\n    "anneeScolaire": "2025-2026"\n}');
 
   const requestOptions: RequestInit = {
     method: "POST",
@@ -31,7 +21,7 @@ export async function fetchNotes(xToken: string, token2fa: string, options: Note
     redirect: "follow",
   };
 
-  let res = await fetch("https://api.ecoledirecte.com/v3/eleves/9064/notes.awp?verbe=get&v=4.90.1", requestOptions);
+  let res = await fetch(`https://api.ecoledirecte.com/v3/eleves/${auth.id}/notes.awp?verbe=get&v=${ED_VERSION}`, requestOptions);
   let data = await res.json();
   if (data.code == 200) {
     return cleanNotes(data.data);
@@ -42,12 +32,11 @@ export async function fetchNotes(xToken: string, token2fa: string, options: Note
 
 export function cleanNotes(notes: RootNote): Notes {
   return {
-    
     getLastEntry(offset = 0) {
       return this.notes.sort((a, b) => b.dateEntry.getTime() - a.dateEntry.getTime())[offset];
     },
     /**
-     * 
+     *
      * @param offset Optional - takes the n last note.
      * @returns the last note or the note corresponding to the offset sorted by date descending.
      */

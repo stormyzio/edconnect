@@ -14,6 +14,9 @@ importers:
       rolldown:
         specifier: 1.0.0-beta.54
         version: 1.0.0-beta.54
+      uuid:
+        specifier: ^13.0.0
+        version: 13.0.0
     devDependencies:
       '@types/node':
         specifier: ^24.10.2
@@ -421,6 +424,10 @@ packages:
       synckit:
         optional: true
 
+  uuid@13.0.0:
+    resolution: {integrity: sha512-XQegIaBTVUjSHliKqcnFqYypAd4S+WCYt5NIeRs6w/UAry7z8Y9j5ZwRRL4kzq9U3sD6v+85er9FvkEaBpji2w==}
+    hasBin: true
+
 snapshots:
 
   '@babel/generator@7.28.5':
@@ -738,3 +745,5 @@ snapshots:
   unrun@0.2.19:
     dependencies:
       rolldown: 1.0.0-beta.53
+
+  uuid@13.0.0: {}

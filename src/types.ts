@@ -6,7 +6,7 @@ export interface ClientOptions {
   /**
    * Enable authentication logs in the console.
    */
-  authLogs?: boolean;
+  debug?: boolean;
 }
 
 // AUTH -----------------------------------------------
@@ -16,28 +16,45 @@ export interface Cookie {
   value: string;
 }
 
-export interface FinalConnectionSecret {
+export interface DoubleauthSecrets {
   cn: string;
   cv: string;
+}
+
+export interface Doubleauth {
+  question: string;
+  propositions: string[];
 }
 
 export interface Secrets {
   /**
    * Connection secret cn - for double authentication.
    */
-  cn: string;
+  cn?: string;
   /**
    * Connection secret cv - for double authentication.
    */
-  cv: string;
+  cv?: string;
   /**
    * X-Token for requests.
    */
-  xToken: string;
+  xToken?: string;
   /**
    * 2fa-Token for requests.
    */
-  token2fa: string;
+  token2fa?: string;
+  /**
+   * UUID used during the login process - for renewed sessions.
+   */
+  uuid?: string;
+  /**
+   * Access token during the login process - for renewed sessions.
+   */
+  accessToken?: string;
+  /**
+   * Id used for data fetching requests
+   */
+  id?: string;
 }
 
 // NOTES -----------------------------------------------

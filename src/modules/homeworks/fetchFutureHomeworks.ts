@@ -1,23 +1,13 @@
+import type { Authentifier } from "../../Authentifier.js";
+import { ED_VERSION } from "../../constants.js";
 import type { SDate } from "../../types.js";
+import { setDefaultHeaders } from "../../utils/headersAppending.js";
 
-export async function fetchFutureHomeworks(xToken: string, token2fa: string): Promise<SDate[]> {
-  const myHeaders = new Headers();
-  myHeaders.append("2fa-token", token2fa);
-  myHeaders.append("accept", "application/json, text/plain, */*");
-  myHeaders.append("accept-language", "fr-FR,fr;q=0.9");
-  myHeaders.append("content-type", "application/x-www-form-urlencoded");
-  myHeaders.append("origin", "https://www.ecoledirecte.com");
-  myHeaders.append("priority", "u=1, i");
-  myHeaders.append("referer", "https://www.ecoledirecte.com/");
-  myHeaders.append("sec-ch-ua", '"Chromium";v="142", "Brave";v="142", "Not_A Brand";v="99"');
-  myHeaders.append("sec-ch-ua-mobile", "?0");
-  myHeaders.append("sec-ch-ua-platform", '"macOS"');
-  myHeaders.append("sec-fetch-dest", "empty");
-  myHeaders.append("sec-fetch-mode", "cors");
-  myHeaders.append("sec-fetch-site", "same-site");
-  myHeaders.append("sec-gpc", "1");
-  myHeaders.append("user-agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36");
-  myHeaders.append("x-token", xToken);
+export async function fetchFutureHomeworks(auth: Authentifier): Promise<SDate[]> {
+  let myHeaders = new Headers();
+  myHeaders = setDefaultHeaders(myHeaders);
+  myHeaders.append("2fa-token", auth.token2fa);
+  myHeaders.append("x-token", auth.xToken);
 
   const urlencoded = new URLSearchParams();
   urlencoded.append("data", "{}");
@@ -29,10 +19,12 @@ export async function fetchFutureHomeworks(xToken: string, token2fa: string): Pr
     redirect: "follow",
   };
 
-  let res = await fetch("https://api.ecoledirecte.com/v3/Eleves/9064/cahierdetexte.awp?verbe=get&v=4.91.0", requestOptions);
+  let res = await fetch(`https://api.ecoledirecte.com/v3/Eleves/${auth.id}/cahierdetexte.awp?verbe=get&v=${ED_VERSION}`, requestOptions);
   let data = await res.json();
   if (data.code == 200) {
-    return Object.keys(data.data) as SDate[];
+    return Object.keys(Object.fromEntries(
+      Object.entries(data.data).filter(([key, _]) => new Date(key).getTime() > new Date(Date.now()).getTime() - 1000*60*60*24)
+    )) as SDate[];
   } else {
     throw new Error("Failed to fetch homeworks.");
   }
