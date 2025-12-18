@@ -1,18 +1,21 @@
 import "dotenv/config";
-import { EDClient, Secrets } from "edconnect";
+import { EDClient, Secrets } from "../dist/index.mjs";
 import { readFile, writeFile } from "fs/promises";
-import inquirer from "inquirer";
+import path from "path";
 
 // We are using inquirer for cli controlling.
+import inquirer from "inquirer";
+
+const __dirname = import.meta.dirname;
 
 // Init the client.
-const edclient = new EDClient(process.env.ED_USERNAME!, {
+const edclient = new EDClient("[your username]", {
   debug: true,
 });
 
 // When the client secrets change, update them in the secrets.json file.
 edclient.onSecretsChange(async (s: Secrets) => {
-  await writeFile("./secrets.json", JSON.stringify(s));
+  await writeFile(path.resolve(__dirname, "./secrets.json"), JSON.stringify(s));
 });
 
 async function askPassword() {
@@ -40,7 +43,7 @@ async function askPassword() {
 }
 
 // Read the secrets.json file. No try-catch here, if the file can't be read, stop the program.
-const secretsFile = await readFile("./secrets.json", "utf-8");
+const secretsFile = await readFile(path.resolve(__dirname, "./secrets.json"), "utf-8");
 
 try {
   // Try to login without password but secrets.
@@ -75,7 +78,7 @@ async function ask() {
       console.log((await edclient.notes()).getLastEntry());
     } else if (choice.choice === "homeworks") {
       // Fetch future homeworks.
-      console.log((await edclient.homeworksFuture()).days);
+      console.log((await edclient.futureHomeworks()).days);
     }
   } catch (error) {
     // If there's an error (obstructed secrets), ask the password and ask again what the user wants.

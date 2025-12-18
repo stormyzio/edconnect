@@ -56,7 +56,7 @@ export class Authentifier {
   /**
    * Login to the account using the provided credentials or secrets.
    */
-  async login(password: string | null, secrets?: Secrets): Promise<Doubleauth | null> {
+  async logg2(password: string | null, secrets?: Secrets): Promise<Doubleauth | null> {
     try {
       this.debugger?.log("success", "Connecting...");
 
@@ -82,6 +82,8 @@ export class Authentifier {
       this.debugger?.log("success", "Step 1");
 
       const login_res = await login(this.cookies, this.cookiesString, username, password, this.uuid);
+      console.log(login_res.headers);
+      console.log(await login_res.json());
       this.token2fa = login_res.headers.get("2fa-Token")!;
       this.xToken = login_res.headers.get("X-Token")!;
 
@@ -167,12 +169,12 @@ export class Authentifier {
       this.id = data.data.accounts[0].id.toString();
 
       return this.skipAuth(this.getSecret());
-    }
+    };
 
     if (!password) {
       let res = await this.renewToken();
       let data = await res.json();
-      next(data)
+      next(data);
     } else {
       const login2_res = await login2(this.cookies, this.cookiesString, this.cn, this.cv, username, password, this.uuid);
 
@@ -201,7 +203,7 @@ export class Authentifier {
     this.uuid = secrets.uuid || "";
     this.accessToken = secrets.accessToken || "";
 
-    this.id = secrets.id || ""
+    this.id = secrets.id || "";
 
     this.onSecretsChangeCallback(this.getSecret());
   }
@@ -228,7 +230,7 @@ export class Authentifier {
       token2fa: this.token2fa,
       uuid: this.uuid,
       accessToken: this.accessToken,
-      id: this.id
+      id: this.id,
     };
   }
 }

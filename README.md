@@ -91,11 +91,11 @@ const firstNoteEntered: Note = notes.getLastEntry(notes.notes.length - 1) // You
 ## Homeworks
 ```ts
 // Fetch all the future homeworks from today.
-const homeworks: Homeworks = await client.homeworksFuture()
+const homeworks: Homeworks = await client.futureHomeworks()
 ```
 ```ts
 // Fetch all homeworks between two dates.
-const homeworks: Homeworks = await client.homeworksInterval({
+const homeworks: Homeworks = await client.rangeHomeworks({
   // yyyy-mm-dd syntax
   from: "2025-12-18",
   to: "2025-12-31"

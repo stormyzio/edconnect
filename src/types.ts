@@ -60,6 +60,7 @@ export interface Secrets {
 // NOTES -----------------------------------------------
 
 export interface NotesOptions {}
+export interface NotesParams {}
 
 export interface NoteClassData {
   classMin: number;
@@ -132,19 +133,11 @@ export interface Notes {
 
 // HOMEWORKS -----------------------------------------------
 
-export interface HomeworksOptionsIntervalStrict {
-  type: "interval";
+export interface RangeHomeworksOptions {
   from: SDate;
   to: SDate;
 }
-export interface HomeworksOptionsFutureStrict {
-  type: "future";
-}
-export type HomeworksOptionsStrict = HomeworksOptionsIntervalStrict | HomeworksOptionsFutureStrict;
-
-export interface HomeworksOptionsInterval extends Omit<HomeworksOptionsIntervalStrict, "type"> {}
-export interface HomeworksOptionsFuture extends Omit<HomeworksOptionsFutureStrict, "type"> {}
-export type HomeworksOptions = HomeworksOptionsInterval | HomeworksOptionsFuture;
+export interface FutureHomeworksOptions {}
 
 export interface HomeworkSubject {
   code: string;
@@ -168,7 +161,7 @@ export interface HomeworkContent {
 export interface DayHomeworks {
   todo: HomeworkTodo[];
   content: HomeworkContent[];
-  date: SDate;
+  day: SDate;
 }
 
 export interface Homeworks {

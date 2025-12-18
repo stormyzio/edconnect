@@ -1,4 +1,4 @@
-export interface RootNote {
+export interface NoteRoot {
   foStat: string;
   periodes: Array<{
     idPeriode: string;

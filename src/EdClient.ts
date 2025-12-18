@@ -1,17 +1,24 @@
 import chalk from "chalk";
 import { Authentifier } from "./Authentifier.js";
-import { fetchHomeworks } from "./modules/homeworks/homeworks.js";
-import { fetchNotes } from "./modules/notes/notes.js";
-import type { ClientOptions, Doubleauth, Homeworks, HomeworksOptionsFuture, HomeworksOptionsInterval, HomeworksOptionsStrict, Notes, NotesOptions, Secrets } from "./types.js";
+import type { ClientOptions, Doubleauth, FutureHomeworksOptions, Homeworks, Notes, NotesOptions, RangeHomeworksOptions, Secrets } from "./types.js";
 import { ClientDebugger } from "./ClientDebugger.js";
+import { Fetcher } from "./Fetcher.js";
+import { NotesMod } from "./modules/notes/NotesMod.js";
+import { HomeworksMod } from "./modules/homeworks/HomeworksMod.js";
 
 export class EDClient {
-  private authentifier: Authentifier | null;
-
+  private authentifier: Authentifier;
+  private fetcher: Fetcher;
   private debugger: ClientDebugger | null = null;
 
+  constructor(username: string, options?: ClientOptions) {
+    this.debugger = new ClientDebugger(options?.debug || false);
+    this.authentifier = new Authentifier(username, this.debugger);
+    this.fetcher = new Fetcher(this.authentifier);
+  }
+
   async login(password: string | null, secrets?: Secrets): Promise<Doubleauth | null> {
-    return await this.authentifier!.login(password, secrets);
+    return await this.authentifier!.logg2(password, secrets);
   }
 
   async resolveDoubleauth(answer: string) {
@@ -22,41 +29,15 @@ export class EDClient {
     this.authentifier!.onSecretsChange(callback);
   }
 
-  constructor(username: string, options?: ClientOptions) {
-    this.debugger = new ClientDebugger(options?.debug || false);
-    this.authentifier = new Authentifier(username, this.debugger);
-  }
-
-  private async fetchWrapper<T, O>(f: (auth: Authentifier, options: O) => Promise<T>, options: O, iteration: number): Promise<T> {
-    try {
-      const data = await f(this.authentifier!, options);
-      this.authentifier!.onSecretsChangeCallback(this.authentifier!.getSecret());
-      return data;
-    } catch (error) {
-      if (iteration == 1) {
-        this.authentifier!.onSecretsChangeCallback({});
-        throw new Error("Failed to renew token after re-authentication.");
-      }
-
-      this.debugger?.log("retry", "Re-authenticating...");
-
-      await this.authentifier!.renewToken();
-      const res = await this.fetchWrapper(f, options, iteration + 1);
-      return res;
-    }
-  }
-
   async notes(): Promise<Notes> {
-    const res = await this.fetchWrapper<Notes, NotesOptions>(fetchNotes, {}, 0);
-    return res;
+    return await this.fetcher.requestWrapper<Notes, NotesOptions>(NotesMod.getNotes, {});
   }
 
-  async homeworksInterval(options: HomeworksOptionsInterval): Promise<Homeworks> {
-    const res = await this.fetchWrapper<Homeworks, HomeworksOptionsStrict>(fetchHomeworks, { ...options, type: "interval" }, 0);
-    return res;
+  async futureHomeworks(): Promise<Homeworks> {
+    return await this.fetcher.requestWrapper<Homeworks, FutureHomeworksOptions>(HomeworksMod.getFutureHomeworks, {});
   }
-  async homeworksFuture(options?: HomeworksOptionsFuture): Promise<Homeworks> {
-    const res = await this.fetchWrapper<Homeworks, HomeworksOptionsStrict>(fetchHomeworks, { ...options, type: "future" }, 0);
-    return res;
+
+  async rangeHomeworks(options: RangeHomeworksOptions): Promise<Homeworks> {
+    return await this.fetcher.requestWrapper<Homeworks, RangeHomeworksOptions>(HomeworksMod.getRangeHomeworks, options);
   }
 }
