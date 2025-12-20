@@ -6,15 +6,15 @@ import type { HomeworksRoot } from "./HomeworksRoot.js";
 
 export class HomeworksMod {
   private static async getDayHomeworks(fetcher: Fetcher, day: SDate): Promise<DayHomeworks> {
-    return this.cleanDayHomeworks(await fetcher.request<HomeworksRoot>({}, `cahierdetexte/${day}.awp`, `homeworks for day ${day}`));
+    return this.cleanDayHomeworks(await fetcher.request<HomeworksRoot>({ anneeScolaire: "2025-2026" }, `cahierdetexte/${day}.awp`, `homeworks for day ${day}`));
   }
 
   static async getFutureHomeworks(fetcher: Fetcher, _options: FutureHomeworksOptions): Promise<Homeworks> {
-    let data = await fetcher.request<Record<string, unknown>>({}, "cahierdetexte.awp", "future homeworks");
+    let data = await fetcher.request<Record<string, unknown>>({ anneeScolaire: "2025-2026" }, "cahierdetexte.awp", "future homeworks");
     let dates = Object.keys(Object.fromEntries(Object.entries(data).filter(([key, _]) => new Date(key).getTime() > new Date(Date.now()).getTime() - 1000 * 60 * 60 * 24))) as SDate[];
     return {
-      days: await Promise.all(dates.map((d) => HomeworksMod.getDayHomeworks(fetcher, d)))
-    }
+      days: await Promise.all(dates.map((d) => HomeworksMod.getDayHomeworks(fetcher, d))),
+    };
   }
 
   static async getRangeHomeworks(fetcher: Fetcher, options: RangeHomeworksOptions) {

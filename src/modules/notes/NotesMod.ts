@@ -8,7 +8,7 @@ import type { NoteRoot } from "./NoteRoot.js";
 
 export class NotesMod {
   static async getNotes(fetcher: Fetcher, _options: NotesOptions): Promise<Notes> {
-    return NotesMod.clean(await fetcher.request<NoteRoot>({}, "notes.awp", "notes"));
+    return NotesMod.clean(await fetcher.request<NoteRoot>({ anneeScolaire: "" }, "notes.awp", "notes", "eleves"));
   }
 
   static clean(notes: NoteRoot): Notes {

@@ -9,13 +9,21 @@ import { setDefaultHeaders } from "./utils/headersAppending.js";
 export class Fetcher {
   authentifier: Authentifier;
 
-  API: string = "https://api.ecoledirecte.com/v3/Eleves";
+  API: string = "https://api.ecoledirecte.com/v3";
 
   constructor(authentifier: Authentifier) {
     this.authentifier = authentifier;
   }
 
-  async request<R>(body: object, path: string, content: string): Promise<R> {
+  /**
+   * 
+   * @param body Some params that have to be put in the body
+   * @param path path in url, containing query params
+   * @param content what have been fetched? to say "failed to fetch ..."
+   * @param apiSuffix different for each request, nobody know why...
+   * @returns directly the json data
+   */
+  async request<R>(body: object, path: string, content: string, apiSuffix: "Eleves" | "eleves" | "E" = "Eleves"): Promise<R> {
     let myHeaders = new Headers();
     myHeaders = setDefaultHeaders(myHeaders);
     myHeaders.append("2fa-token", this.authentifier.token2fa);
@@ -25,7 +33,6 @@ export class Fetcher {
     urlencoded.append(
       "data",
       JSON.stringify({
-        anneeScolaire: "2025-2026",
         ...body,
       })
     );
@@ -37,7 +44,7 @@ export class Fetcher {
       redirect: "follow",
     };
 
-    let res = await fetch(`${this.API}/${this.authentifier.id}/${path}?verbe=get&v=${ED_VERSION}`, requestOptions);
+    let res = await fetch(`${this.API}/${apiSuffix}/${this.authentifier.id}/${path}${path.includes("?") ? "&" : "?"}verbe=get&v=${ED_VERSION}`, requestOptions);
     let data = await res.json();
 
     if (data.code == 200) {
@@ -55,7 +62,7 @@ export class Fetcher {
     } catch (error) {
       if (iteration == 1) {
         // this.authentifier!.onSecretsChangeCallback({});
-        throw new Error("Failed to renew token after re-authentication.");
+        throw error;
       }
 
       this.authentifier.debugger?.log("retry", "Re-authenticating...");

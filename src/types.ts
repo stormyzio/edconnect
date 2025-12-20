@@ -2,6 +2,10 @@
 
 export type SDate = `${number}-${number}-${number}`;
 
+export type SDateAndHour = `${SDate} ${number}:${number}:${number}`
+
+export type HexColor = `#${string}`
+
 export interface ClientOptions {
   /**
    * Enable authentication logs in the console.
@@ -166,4 +170,81 @@ export interface DayHomeworks {
 
 export interface Homeworks {
   days: DayHomeworks[];
+}
+
+// MESSAGES -----------------------------------------------
+
+export type MessageFolder = "received" | "sent" | "draft" | "archived"
+
+export interface MessagesListOptions {
+  folder?: MessageFolder,
+  page?: number
+}
+
+export interface MessageContentOptions {
+  id: number;
+}
+
+export interface MessagePerson {
+  prefix: string;
+  firstName: string;
+  name: string;
+}
+
+export interface MessageFile {
+  id: number;
+  name: string;
+  date: SDate;
+}
+
+export interface Message {
+  answered: boolean;
+  draft: boolean;
+  canAnwser: boolean;
+  date: SDateAndHour;
+  from: MessagePerson;
+  to: MessagePerson[];
+  id: number;
+  read: boolean;
+  subject: string;
+  transferred: boolean;
+  files: MessageFile[];
+
+  content: string;
+}
+
+export interface MessagesList {
+  messages: Message[]
+}
+
+// TIMETABLE -----------------------------------------------
+
+export interface TimetableOptions {
+  from: SDate;
+  to: SDate;
+}
+
+export interface TimetableSubject {
+  code: string;
+  name: string;
+  teacher: string;
+}
+
+export interface TimetableClass {
+  id: number;
+  name: string;
+  color: HexColor;
+
+  cancelled: boolean;
+  modified: boolean;
+  flexible: boolean;
+
+  subject: TimetableSubject;
+  
+  startDate: SDateAndHour;
+  endDate: SDateAndHour;
+}
+
+export interface Timetable {
+  classes: TimetableClass[]
 }

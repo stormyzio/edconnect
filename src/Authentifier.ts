@@ -82,8 +82,6 @@ export class Authentifier {
       this.debugger?.log("success", "Step 1");
 
       const login_res = await login(this.cookies, this.cookiesString, username, password, this.uuid);
-      console.log(login_res.headers);
-      console.log(await login_res.json());
       this.token2fa = login_res.headers.get("2fa-Token")!;
       this.xToken = login_res.headers.get("X-Token")!;
 

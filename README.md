@@ -1,4 +1,5 @@
 # edconnect
+
 Wrapper for Ecoledirecte API.
 - Full **typescript support**.
 - **ESM** and **CommonJS** supported.
@@ -79,19 +80,19 @@ This method allows for a **much** faster login speed and the absence of the need
 
 ## Notes
 ```ts
-const notes: Notes = await client.notes()
+const notes: Notes = await client.notes();
 
-const lastNoteEntered: Note = notes.getLastEntry() // Last note that was added to ecoledirecte
+const lastNoteEntered: Note = notes.getLastEntry(); // Last note that was added to ecoledirecte
 
-const lastNote: Note = notes.getLast() // Last note by the date of the exam
+const lastNote: Note = notes.getLast(); // Last note by the date of the exam
 
-const firstNoteEntered: Note = notes.getLastEntry(notes.notes.length - 1) // You can use an offset. Works for .getLast() too
+const firstNoteEntered: Note = notes.getLastEntry(notes.notes.length - 1); // You can use an offset. Works for .getLast() too
 ```
 
 ## Homeworks
 ```ts
 // Fetch all the future homeworks from today.
-const homeworks: Homeworks = await client.futureHomeworks()
+const homeworks: Homeworks = await client.futureHomeworks();
 ```
 ```ts
 // Fetch all homeworks between two dates.
@@ -103,6 +104,24 @@ const homeworks: Homeworks = await client.rangeHomeworks({
 
 // Use the `dateToSDate` method to convert a Date object into this format.
 console.log(dateToSDate(new Date(Date.now())))
+```
+
+## Messages
+```ts
+const messages: Messages = await client.messages();
+
+const messages: Messages = await client.messages({
+  folder: "received", // "received" (default), "sent", "draft" or "archived"
+  page: 0 // Controls pagination, with page: 0 returning the first 100 messages, page: 1 the next 100, and so on
+});
+```
+
+## Timetable
+```ts
+const timetable: Timetable = await client.timetable({
+  from: "2025-12-15",
+  to: "2025-12-20"
+});
 ```
 
 ## Additional infos

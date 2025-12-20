@@ -1,5 +1,5 @@
 import "dotenv/config";
-import { EDClient, Secrets } from "../dist/index.mjs";
+import { dateToSDate, EDClient, Secrets } from "../dist/index.mjs";
 import { readFile, writeFile } from "fs/promises";
 import path from "path";
 
@@ -9,7 +9,7 @@ import inquirer from "inquirer";
 const __dirname = import.meta.dirname;
 
 // Init the client.
-const edclient = new EDClient("[your username]", {
+const edclient = new EDClient("[your-username]", {
   debug: true,
 });
 
@@ -53,7 +53,7 @@ try {
   await askPassword();
 }
 
-type Choice = "lastnote" | "homeworks"
+type Choice = "lastnote" | "homeworks" | "lastmessage" | "nextclass"
 
 async function ask() {
   try {
@@ -70,15 +70,41 @@ async function ask() {
           name: "Homeworks",
           value: "homeworks",
         },
-      ],
+        {
+          name: "Last message",
+          value: "lastmessage",
+        },
+        {
+          name: "Next class",
+          value: "nextclass",
+        },
+      ] as { name: string; value: Choice }[],
     });
 
     if (choice.choice === "lastnote") {
       // Fetch last entered note.
       console.log((await edclient.notes()).getLastEntry());
+
     } else if (choice.choice === "homeworks") {
       // Fetch future homeworks.
       console.log((await edclient.futureHomeworks()).days);
+      
+    } else if (choice.choice == "lastmessage") {
+      // Fetch last received message
+      let lastMessageId = (await edclient.messagesList()).messages[0].id;
+      console.log((await edclient.messageContent({ id: lastMessageId })));
+
+    } else if (choice.choice == "nextclass") {
+      // Fetch next class, from tomorrow
+      let oneDay = 1000*60*60*24
+
+      console.log(
+        (await edclient.timetable({
+          from: dateToSDate(new Date(Date.now() + oneDay )),
+          to: dateToSDate(new Date(Date.now() + oneDay*31 )),
+        })).classes.filter(c => c.subject.code)[0]
+      );
+
     }
   } catch (error) {
     // If there's an error (obstructed secrets), ask the password and ask again what the user wants.

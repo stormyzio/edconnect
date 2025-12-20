@@ -1,10 +1,12 @@
 import chalk from "chalk";
 import { Authentifier } from "./Authentifier.js";
-import type { ClientOptions, Doubleauth, FutureHomeworksOptions, Homeworks, Notes, NotesOptions, RangeHomeworksOptions, Secrets } from "./types.js";
+import type { ClientOptions, Doubleauth, FutureHomeworksOptions, Homeworks, Message, MessageContentOptions, MessagesList, MessagesListOptions, Notes, NotesOptions, RangeHomeworksOptions, Secrets, Timetable, TimetableOptions } from "./types.js";
 import { ClientDebugger } from "./ClientDebugger.js";
 import { Fetcher } from "./Fetcher.js";
 import { NotesMod } from "./modules/notes/NotesMod.js";
 import { HomeworksMod } from "./modules/homeworks/HomeworksMod.js";
+import { MessagesMod } from "./modules/messages/MessagesMod.js";
+import { TimetableMod } from "./modules/timetable/TimetableMod.js";
 
 export class EDClient {
   private authentifier: Authentifier;
@@ -39,5 +41,17 @@ export class EDClient {
 
   async rangeHomeworks(options: RangeHomeworksOptions): Promise<Homeworks> {
     return await this.fetcher.requestWrapper<Homeworks, RangeHomeworksOptions>(HomeworksMod.getRangeHomeworks, options);
+  }
+
+  async messagesList(options?: MessagesListOptions): Promise<MessagesList> {
+    return await this.fetcher.requestWrapper<MessagesList, MessagesListOptions | undefined>(MessagesMod.getMessagesList, options)
+  }
+
+  async messageContent(options: MessageContentOptions): Promise<Message> {
+    return await this.fetcher.requestWrapper<Message, MessageContentOptions>(MessagesMod.getMessageContent, options);
+  }
+
+  async timetable(options: TimetableOptions): Promise<Timetable> {
+    return await this.fetcher.requestWrapper<Timetable, TimetableOptions>(TimetableMod.getTimetable, options)
   }
 }
