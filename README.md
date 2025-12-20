@@ -129,7 +129,7 @@ When fetching for data, if tokens have expired, it will automatically renew them
 <br>
 If it can't renew tokens because secrets have been obstructed, it will throw an error.
 
-Check [examples](https://github.com/stormyzio/edconnect/examples/) if you need to.
+Check [examples](examples/) if you need to.
 
 ## Secrets
 The `Secrets` object contains 7 properties :
